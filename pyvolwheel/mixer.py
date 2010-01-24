@@ -109,15 +109,17 @@ class Mixer(object):
             # If the channel has already been muted, we return so we don't
             # overwrite the mute cache with the muted values (0)
             if self.get_mute(control) is True: return
-            self._mute_cache[control] = self.get_volume(control)
+            last_vol = self.get_volume(control)
             self.set_volume(control, 0)
+            self._mute_cache[control] = last_vol
         elif flag is False:
             # Unmute
             # That which is not muted cannot be unmuted
             if self.get_mute(control) is False: return
             # We only use the value of the first channel
-            self.set_volume(control, self._mute_cache[control][0])
+            premute_vol = self._mute_cache[control][0]
             del self._mute_cache[control]
+            self.set_volume(control, premute_vol)
 
     def _get_fake_mute(self, control):
         if control in self._mute_cache:
@@ -261,6 +263,8 @@ if 'OSS' in available_drivers:
         def get_volume(self, control):
             """Returns a list of the current values of each channel"""
             self._check_mixer()
+            if control in self._mute_cache:
+                return self._mute_cache[control]
             try:
                 vol = self._mixer.get(self._control_to_id(control))
             except ossaudiodev.OSSAudioError as e:
@@ -271,6 +275,10 @@ if 'OSS' in available_drivers:
             """Set the volume of the control"""
             self._check_mixer()
             volume = _clamp(volume)
+            # If the control is muted, update the mute cache and return
+            if control in self._mute_cache:
+                self._mute_cache[control] = (volume, volume)
+                return
             try:
                 self._mixer.set(self._control_to_id(control), (volume, volume))
             except ossaudiodev.OSSAudioError as e:
@@ -279,6 +287,12 @@ if 'OSS' in available_drivers:
         def change_volume(self, control, delta):
             """Increase or decrease the volume of the control by delta"""
             self._check_mixer()
+            # If the control is muted, update the mute cache and return
+            if control in self._mute_cache:
+                cur_vol = self._mute_cache[control]
+                self._mute_cache[control] = (_clamp(cur_vol[0] + delta),
+                                             _clamp(cur_vol[1] + delta))
+                return
             cur_vol = self.get_volume(control)
             try:
                 self._mixer.set(self._control_to_id(control),
