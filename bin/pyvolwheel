@@ -28,7 +28,15 @@ class Main(object):
         self.mixer = None
         self.icon = gui.TrayIcon(self)
         self.reload()
+        if self.config.restore.enabled is True:
+            self.mixer.set_mute(self.config.restore.muted)
+            self.mixer.set_volume(self.config.restore.level)
+            self.icon.update()
         gui.gtk.main()
+        if self.config.restore.enabled is True:
+            self.config.restore.level = self.mixer.get_volume()[0]
+            self.config.restore.muted = self.mixer.get_mute()
+            self.config.save()
 
     def toggle_mute(self):
         if self.mixer is None: return

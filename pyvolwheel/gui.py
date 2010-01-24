@@ -148,6 +148,7 @@ class ConfigDialog(gtk.Window):
         self._main.config.mixer.control = new_vals[2]
         self._main.config.mixer.increment = new_vals[3]
         self._main.config.mixer.external = self.xm_tbox.get_text()
+        self._main.config.restore.enabled = self.rest_check.get_active()
         self._main.config.save()
         self._main.reload()
         self.destroy()
@@ -207,6 +208,14 @@ class ConfigDialog(gtk.Window):
         inc_hbox.pack_start(inc_label, expand=False, padding=5)
         inc_hbox.pack_end(self.inc_spinner, expand=False, padding=5)
         mixer_vbox.pack_start(inc_hbox, expand=False, padding=0)
+        # Restore
+        rest_hbox = gtk.HBox(spacing=10)
+        rest_label = gtk.Label("Restore volume at startup")
+        self.rest_check = gtk.CheckButton()
+        self.rest_check.set_active(main.config.restore.enabled)
+        rest_hbox.pack_start(rest_label, expand=False, padding=5)
+        rest_hbox.pack_end(self.rest_check, expand=False, padding=5)
+        mixer_vbox.pack_start(rest_hbox, expand=False, padding=0)
         # External Mixer
         xm_hbox = gtk.HBox(spacing=10)
         xm_label = gtk.Label("External Mixer")
