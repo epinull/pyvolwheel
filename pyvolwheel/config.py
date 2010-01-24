@@ -43,7 +43,8 @@ _DefaultSettings = {'mixer':
                       'update_interval': 1000}),
                     'restore':
             AttrDict({'enabled':   False,
-                      'level':     0}),
+                      'level':     0,
+                      'muted':     False}),
                     'keys':
             AttrDict({'enabled':   True,
                       'raise':     "XF86AudioRaiseVolume",
@@ -85,12 +86,12 @@ class Config(AttrDict):
                     # options in the section will be set to their defaults
                     if not parser.has_section(sect):
                         value = default
+                    elif isinstance(default, bool):
+                        value = parser.getboolean(sect, opt)
                     elif isinstance(default, int):
                         value = parser.getint(sect, opt)
                     elif isinstance(default, float):
                         value = parser.getfloat(sect, opt)
-                    elif isinstance(default, bool):
-                        value = parser.getboolean(sect, opt)
                     else:
                         value = parser.get(sect, opt)
                         if default is None and value == 'None':
