@@ -6,7 +6,7 @@ import pyvolwheel
 if __name__ == '__main__':
     setup(name="pyvolwheel",
           version=pyvolwheel.__version__,
-          description='Volume control tray icon', 
+          description='Volume control tray icon',
           author='epinull',
           author_email='epinull@gmail.com',
           url=pyvolwheel.__url__,

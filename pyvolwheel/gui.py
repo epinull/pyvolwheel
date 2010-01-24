@@ -114,11 +114,8 @@ class ConfigDialog(gtk.Window):
         driver = self.driver_combo.get_active_text()
         device = self.device_combo.get_active_text()
         if driver is None or device is None: return
-        m = mixer.open_mixer(driver, device)
-        for control in m.get_controls():
+        for control in mixer.get_controls(driver, device):
             self.control_combo.append_text(control)
-        m.close()
-        del m
         self.control_combo.set_active(0)
         # Prevent saving if the device has no controls
         self._set_saveable(self.control_combo)
@@ -250,14 +247,13 @@ class MiniMixer(gtk.Window):
         Popen(self._main.config.mixer.external, shell=True)
 
     def update(self):
-        control = self._main.config.mixer.control
+        control = self._main.mixer.get_control()
         self.label.set_text(control)
-        vol = self._main.mixer.get_volume(control)[0]
+        vol = self._main.mixer.get_volume()[0]
         self.slider.set_value(vol)
 
     def on_change(self, wdg):
-        control = self._main.config.mixer.control
-        self._main.mixer.set_volume(control, int(wdg.get_value()))
+        self._main.mixer.set_volume(int(wdg.get_value()))
         # Force the tray icon to update
         self._main.icon.update()
         return True
@@ -351,10 +347,10 @@ class TrayMenu(gtk.Menu):
 
 class TrayIcon(gtk.StatusIcon):
     def update(self):
-        control = self._main.config.mixer.control
         try:
-            is_muted = self._main.mixer.get_mute(control)
-            volume = self._main.mixer.get_volume(control)[0]
+            control = self._main.mixer.get_control()
+            volume = self._main.mixer.get_volume()[0]
+            is_muted = self._main.mixer.get_mute()
         except mixer.MixerError as e:
             self.set_error(str(e))
         else:
@@ -420,6 +416,7 @@ class TrayIcon(gtk.StatusIcon):
             del self.minimixer
             self.minimixer = None
         return False
+
     def __init__(self, main):
         super(TrayIcon, self).__init__()
         self._main = main

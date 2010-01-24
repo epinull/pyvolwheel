@@ -32,10 +32,8 @@ class Main(object):
 
     def toggle_mute(self):
         if self.mixer is None: return
-        control = self.config.mixer.control
-        muted = self.mixer.get_mute(control)
         try:
-            self.mixer.set_mute(control, not muted)
+            self.mixer.set_mute(not self.mixer.get_mute())
         except mixer.MixerError:
             pass
         else:
@@ -43,7 +41,6 @@ class Main(object):
 
     def change_volume(self, direction):
         if self.mixer is None: return
-        control = self.config.mixer.control
         if direction == 'up':
             inc = self.config.mixer.increment
         elif direction == 'down':
@@ -51,7 +48,7 @@ class Main(object):
         else:
             return
         try:
-            self.mixer.change_volume(control, inc)
+            self.mixer.change_volume(inc)
         except mixer.MixerError:
             pass
         else:
@@ -71,23 +68,26 @@ class Main(object):
             driver = self.config.mixer.driver
             self.config.mixer.device = mixer.get_devices(driver)[0]
         else:
-            # Check if the device is a number
+            # Convert device to an int if possible (for ALSA card index)
             try:
                 self.config.mixer.device = int(self.config.mixer.device)
             except ValueError:
                 pass
+        # If not control was given, use the first one in the control list
+        if self.config.mixer.control is None:
+            driver = self.config.mixer.driver
+            device = self.config.mixer.device
+            self.config.mixer.control = mixer.get_controls(driver, device)[0]
         # Close the current mixer, if one's open
         if self.mixer is not None:
             self.mixer.close()
-        # Open the mixer
+            self.mixer = None
+        # Open the new mixer
         self.mixer = mixer.open_mixer(self.config.mixer.driver,
-                                      self.config.mixer.device)
-        # If not control was given, use the first one in the control list
-        if self.config.mixer.control is None:
-            self.config.mixer.control = self.mixer.get_controls()[0]
+                                      self.config.mixer.device,
+                                      self.config.mixer.control)
         # Make the tray icon reload
         self.icon.reload()
-
 
 if __name__ == '__main__':
     if "-V" in sys.argv or "--version" in sys.argv:

@@ -34,7 +34,7 @@ class AttrDict(dict):
 #   ...
 # {'section':
 #   ...
-_DefaultSettings = {'mixer': 
+_DefaultSettings = {'mixer':
             AttrDict({'driver':          None,
                       'device':          None,
                       'control':         None,
