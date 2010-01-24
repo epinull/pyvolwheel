@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+#
+# pyvolwheel
+# Copyright (C) 2010 epinull <epinull at gmail dot com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import sys
+import pyvolwheel
+from pyvolwheel import config,mixer,gui
+
+class Main(object):
+    def run(self):
+        self.config = config.Config()
+        self.mixer = None
+        self.icon = gui.TrayIcon(self)
+        self.reload()
+        gui.gtk.main()
+
+    def toggle_mute(self):
+        if self.mixer is None: return
+        control = self.config.mixer.control
+        muted = self.mixer.get_mute(control)
+        try:
+            self.mixer.set_mute(control, not muted)
+        except mixer.MixerError:
+            pass
+        else:
+            self.icon.update()
+
+    def change_volume(self, direction):
+        if self.mixer is None: return
+        control = self.config.mixer.control
+        if direction == 'up':
+            inc = self.config.mixer.increment
+        elif direction == 'down':
+            inc = -self.config.mixer.increment
+        else:
+            return
+        try:
+            self.mixer.change_volume(control, inc)
+        except mixer.MixerError:
+            pass
+        else:
+            self.icon.update()
+
+    def reload(self):
+        # Reload mixer etc to reflect any changes in self.config
+        # If no driver is set, pick the first one available
+        if self.config.mixer.driver is None:
+            # Use the first driver returned by mixer.get_drivers()
+            self.config.mixer.driver = mixer.get_drivers()[0]
+            # Device & control are considered invalid
+            self.config.mixer.device = None
+            self.config.mixer.control = None
+        # If no device is given, use the first one in the list
+        if self.config.mixer.device is None:
+            driver = self.config.mixer.driver
+            self.config.mixer.device = mixer.get_devices(driver)[0]
+        else:
+            # Check if the device is a number
+            try:
+                self.config.mixer.device = int(self.config.mixer.device)
+            except ValueError:
+                pass
+        # Close the current mixer, if one's open
+        if self.mixer is not None:
+            self.mixer.close()
+        # Open the mixer
+        self.mixer = mixer.open_mixer(self.config.mixer.driver,
+                                      self.config.mixer.device)
+        # If not control was given, use the first one in the control list
+        if self.config.mixer.control is None:
+            self.config.mixer.control = self.mixer.get_controls()[0]
+        # Make the tray icon reload
+        self.icon.reload()
+
+
+if __name__ == '__main__':
+    if "-V" in sys.argv or "--version" in sys.argv:
+        print "pyvolwheel",pyvolwheel.__version__
+        sys.exit(0)
+    elif "-h" in sys.argv or "--help" in sys.argv:
+        print "Usage:","pyvolwheel"
+        sys.exit(0)
+    m = Main()
+    m.run()
+
+# vim: filetype=python:et:sw=4:ts=4:sts=4:tw=79
