@@ -21,13 +21,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dependancies
+Dependencies
 ============
-    * pygtk (>=2.12)
+    * pygtk (>=2.16)
 
-Optional Dependancies
+Optional Dependencies
 =====================
     * pyalsaaudio: for ALSA mixer support
+    * python-xlib: for global hotkey support
 
 Authors
 =======
