@@ -20,19 +20,36 @@
 import os
 import sys
 import pyvolwheel
-from pyvolwheel import config,mixer,gui
+from pyvolwheel import config,mixer,gui,hotkeys
 
 class Main(object):
+    def on_hotkey_press(self, obj, key):
+        if key in ['up', 'down']:
+            self.change_volume(key)
+        elif key == 'mute':
+            self.toggle_mute()
+        return True
+
     def run(self):
+        gui.gtk.gdk.threads_init()
         self.config = config.Config()
         self.mixer = None
         self.icon = gui.TrayIcon(self)
+        self.hkl = None
         self.reload()
         if self.config.restore.enabled is True:
             self.mixer.set_mute(self.config.restore.muted)
             self.mixer.set_volume(self.config.restore.level)
             self.icon.update()
+        #kb = {'raise': "XF86AudioRaiseVolume",
+        #      'lower': 'XF86AudioLowerVolume',
+        #       'mute': 'XF86AudioMute'}
+        #h = hotkeys.HotKeyListener(kb)
+        #h.connect('key-press', self.on_hotkey_press)
+        #h.start()
         gui.gtk.main()
+        # Stop the hotkey listener, if it's active
+        self._kill_hkl()
         if self.config.restore.enabled is True:
             self.config.restore.level = self.mixer.get_volume()[0]
             self.config.restore.muted = self.mixer.get_mute()
@@ -61,6 +78,24 @@ class Main(object):
             pass
         else:
             self.icon.update()
+
+    def _respawn_hkl(self):
+        if self.hkl is not None:
+            self._kill_hkl()
+        binds = {  'up': self.config.hotkeys.up,
+                 'down': self.config.hotkeys.down,
+                 'mute': self.config.hotkeys.mute}
+        # Start the hotkey listener
+        self.hkl = hotkeys.HotKeyListener(binds)
+        self.hkl.connect('key-press', self.on_hotkey_press)
+        self.hkl.start()
+
+    def _kill_hkl(self):
+        if self.hkl is None:
+            return
+        self.hkl.stop()
+        #self.hkl.join()
+        self.hkl = None
 
     def reload(self):
         # Reload mixer etc to reflect any changes in self.config
@@ -94,6 +129,11 @@ class Main(object):
         self.mixer = mixer.open_mixer(self.config.mixer.driver,
                                       self.config.mixer.device,
                                       self.config.mixer.control)
+        # Kill or respawn the hotkey listener
+        if self.config.hotkeys.enabled is True:
+            self._respawn_hkl()
+        else:
+            self._kill_hkl()
         # Make the tray icon reload
         self.icon.reload()
 

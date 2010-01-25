@@ -149,10 +149,17 @@ class ConfigDialog(gtk.Window):
         self._main.config.mixer.increment = new_vals[3]
         self._main.config.mixer.external = self.xm_tbox.get_text()
         self._main.config.restore.enabled = self.rest_check.get_active()
+        self._main.config.hotkeys.enabled = self.hk_cb.get_active()
+        self._main.config.hotkeys.up = self.hk_up_tbox.get_text()
+        self._main.config.hotkeys.down = self.hk_down_tbox.get_text()
+        self._main.config.hotkeys.mute = self.hk_mute_tbox.get_text()
         self._main.config.save()
         self._main.reload()
         self.destroy()
         return True
+
+    def on_hk_toggled(self, wdg):
+        self.hk_frame.set_sensitive(wdg.get_active())
 
     def __init__(self, main):
         super(ConfigDialog, self).__init__(gtk.WINDOW_TOPLEVEL)
@@ -165,7 +172,7 @@ class ConfigDialog(gtk.Window):
         self._filling = False
         # Main VBox
         main_vbox = gtk.VBox(spacing=10)
-        # Config Notebox
+        # Config Notebook
         notebook = gtk.Notebook()
         #### Mixer Settings Tab
         mixer_vbox = gtk.VBox(spacing=10)
@@ -232,6 +239,50 @@ class ConfigDialog(gtk.Window):
         # Add everything to the Mixer page
         notebook.append_page(mixer_vbox, gtk.Label("Mixer"))
         #### End Mixer Settings Tab
+        #### Hotkeys Tab
+        hk_vbox = gtk.VBox()
+        # Enabled Checkbox
+        hk_cb_hbox = gtk.HBox(spacing=10)
+        hk_cb_label = gtk.Label("Global Hotkeys")
+        self.hk_cb = gtk.CheckButton("Enabled")
+        self.hk_cb.set_active(main.config.hotkeys.enabled)
+        self.hk_cb.connect('toggled', self.on_hk_toggled)
+        hk_cb_hbox.pack_start(hk_cb_label, expand=False, padding=5)
+        hk_cb_hbox.pack_end(self.hk_cb, expand=False, padding=5)
+        hk_vbox.pack_start(hk_cb_hbox, expand=False, padding=0)
+        # Keybinds Frame
+        self.hk_frame = gtk.Frame()
+        self.hk_frame.set_sensitive(main.config.hotkeys.enabled)
+        hk_frame_vbox = gtk.VBox(spacing=10)
+        # Raise Volume Key
+        hk_up_hbox = gtk.HBox(spacing=10)
+        hk_up_label = gtk.Label("Raise Volume Key")
+        self.hk_up_tbox = gtk.Entry()
+        self.hk_up_tbox.set_text(main.config.hotkeys.up)
+        hk_up_hbox.pack_start(hk_up_label, expand=False, padding=5)
+        hk_up_hbox.pack_end(self.hk_up_tbox, expand=False, padding=5)
+        hk_frame_vbox.pack_start(hk_up_hbox, expand=False, padding=0)
+        # Lower Volume Key
+        hk_down_hbox = gtk.HBox(spacing=10)
+        hk_down_label = gtk.Label("Lower Volume Key")
+        self.hk_down_tbox = gtk.Entry()
+        self.hk_down_tbox.set_text(main.config.hotkeys.down)
+        hk_down_hbox.pack_start(hk_down_label, expand=False, padding=5)
+        hk_down_hbox.pack_end(self.hk_down_tbox, expand=False, padding=5)
+        hk_frame_vbox.pack_start(hk_down_hbox, expand=False, padding=0)
+        # Mute Volume Key
+        hk_mute_hbox = gtk.HBox(spacing=10)
+        hk_mute_label = gtk.Label("Mute Volume Key")
+        self.hk_mute_tbox = gtk.Entry()
+        self.hk_mute_tbox.set_text(main.config.hotkeys.mute)
+        hk_mute_hbox.pack_start(hk_mute_label, expand=False, padding=5)
+        hk_mute_hbox.pack_end(self.hk_mute_tbox, expand=False, padding=5)
+        hk_frame_vbox.pack_start(hk_mute_hbox, expand=False, padding=0)
+        # Add the vbox to the frame
+        self.hk_frame.add(hk_frame_vbox)
+        hk_vbox.pack_start(self.hk_frame)
+        notebook.append_page(hk_vbox, gtk.Label("Hotkeys"))
+        #### End Hotkeys Tab
         main_vbox.pack_start(notebook, expand=False)
         # Bottom Buttons (Save/Cancel)
         bottom_hbox = gtk.HBox(spacing=5)

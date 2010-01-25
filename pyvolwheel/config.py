@@ -45,10 +45,10 @@ _DefaultSettings = {'mixer':
             AttrDict({'enabled':   False,
                       'level':     0,
                       'muted':     False}),
-                    'keys':
+                    'hotkeys':
             AttrDict({'enabled':   True,
-                      'raise':     "XF86AudioRaiseVolume",
-                      'lower':     "XF86AudioLowerVolume",
+                      'up':     "XF86AudioRaiseVolume",
+                      'down':     "XF86AudioLowerVolume",
                       'mute':      "XF86AudioMute"})}
 
 # If the env. variable XDG_CONFIG_HOME is set, use it for the config directory,
