@@ -138,15 +138,10 @@ class ConfigDialog(gtk.Window):
         return True
 
     def on_save(self, _):
-        # Save on typing, etc. :P
-        new_vals = [x.get_active_text() for x in (self.driver_combo,
-                                             self.device_combo,
-                                             self.control_combo)]
-        new_vals.append(self.inc_spinner.get_value_as_int())
-        self._main.config.mixer.driver = new_vals[0]
-        self._main.config.mixer.device = new_vals[1]
-        self._main.config.mixer.control = new_vals[2]
-        self._main.config.mixer.increment = new_vals[3]
+        self._main.config.mixer.driver = self.driver_combo.get_active_text()
+        self._main.config.mixer.device = self.device_combo.get_active_text()
+        self._main.config.mixer.control = self.control_combo.get_active_text()
+        self._main.config.mixer.increment = self.inc_spinner.get_value_as_int()
         self._main.config.mixer.external = self.xm_tbox.get_text()
         self._main.config.restore.enabled = self.rest_check.get_active()
         self._main.config.hotkeys.enabled = self.hk_cb.get_active()
