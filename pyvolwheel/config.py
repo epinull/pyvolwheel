@@ -46,7 +46,7 @@ _DefaultSettings = {'mixer':
                       'level':     0,
                       'muted':     False}),
                     'hotkeys':
-            AttrDict({'enabled':   True,
+            AttrDict({'enabled':   False,
                       'up':     "XF86AudioRaiseVolume",
                       'down':     "XF86AudioLowerVolume",
                       'mute':      "XF86AudioMute"})}
