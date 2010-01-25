@@ -73,7 +73,7 @@ class HotKeyListener(gobject.GObject, threading.Thread):
         for keycode, _ in self._keys.keys():
             self.root.grab_key(keycode, X.AnyModifier, True,
                                X.GrabModeAsync,
-                               X.GrabModeAsync)
+                               X.GrabModeSync)
 
     def _ungrab(self):
         for keycode, _ in self._keys.keys():
@@ -103,6 +103,7 @@ class HotKeyListener(gobject.GObject, threading.Thread):
                     act = self._key_pressed_action(event.detail, event.state)
                     if act is not None:
                         gobject.idle_add(self._emit, act)
+                        self.display.allow_events(X.AsyncKeyboard, event.time)
                     else:
                         self.display.allow_events(X.ReplayKeyboard, event.time)
         self.display.close()
