@@ -15,9 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
-from Xlib.display import Display
-from Xlib import X
+try:
+    from Xlib import X
+    from Xlib.display import Display
+except ImportError:
+    available = False
+else:
+    available = True
+
 import select
 import threading
 import gtk.gdk

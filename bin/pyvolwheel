@@ -80,6 +80,7 @@ class Main(object):
             self.icon.update()
 
     def _respawn_hkl(self):
+        if hotkeys.available is False: return
         if self.hkl is not None:
             self._kill_hkl()
         binds = {  'up': self.config.hotkeys.up,
@@ -91,6 +92,7 @@ class Main(object):
         self.hkl.start()
 
     def _kill_hkl(self):
+        if hotkeys.available is False: return
         if self.hkl is None:
             return
         self.hkl.stop()

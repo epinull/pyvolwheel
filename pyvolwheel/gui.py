@@ -22,8 +22,8 @@ pygtk.require('2.0')
 import gtk
 import gobject
 import pyvolwheel
-import pyvolwheel.config as conf
-import pyvolwheel.mixer as mixer
+from pyvolwheel import mixer
+from pyvolwheel import hotkeys
 
 _volume_icons = ('audio-volume-muted',
                  'audio-volume-low',
@@ -241,6 +241,9 @@ class ConfigDialog(gtk.Window):
         #### End Mixer Settings Tab
         #### Hotkeys Tab
         hk_vbox = gtk.VBox()
+        hk_vbox.set_sensitive(hotkeys.available)
+        if hotkeys.available is False:
+            hk_vbox.set_tooltip_text("Install python-xlib to use hotkeys")
         # Enabled Checkbox
         hk_cb_hbox = gtk.HBox(spacing=10)
         hk_cb_label = gtk.Label("Global Hotkeys")
