@@ -2,8 +2,11 @@ pyvolwheel v0.1.0
 
 Description
 ===========
-pyvolwheel is an icon that sits in your system tray and allows you to control
-the volume using your mouse wheel. It supports both ALSA and OSS.
+pyvolwheel is a python application that puts an icon in your system tray from
+which you can control the volume using your mouse wheel or optional hot-keys.
+It is compatible with both ALSA and OSS and supports muting for controls that
+don't natively support it. pyvolwheel can also remember the volume level when
+it quits and restore it the next time it starts.
 
 License
 =======
@@ -32,4 +35,4 @@ Optional Dependencies
 
 Authors
 =======
-    * epinull <epinull@gmail.com>
+    * epinull <epinull at gmail dot com>
