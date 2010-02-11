@@ -47,7 +47,10 @@ class Main(object):
         #h = hotkeys.HotKeyListener(kb)
         #h.connect('key-press', self.on_hotkey_press)
         #h.start()
-        gui.gtk.main()
+        try:
+            gui.gtk.main()
+        except KeyboardInterrupt:
+            pass
         # Stop the hotkey listener, if it's active
         self._kill_hkl()
         if self.config.restore.enabled is True:
