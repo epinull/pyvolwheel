@@ -36,17 +36,15 @@ class Main(object):
         self.mixer = None
         self.icon = gui.TrayIcon(self)
         self.hkl = None
-        self.reload()
+        try:
+            self.reload()
+        except mixer.MixerError as e:
+            print "Error: " + str(e)
+            sys.exit(255)
         if self.config.restore.enabled is True:
             self.mixer.set_mute(self.config.restore.muted)
             self.mixer.set_volume(self.config.restore.level)
             self.icon.update()
-        #kb = {'raise': "XF86AudioRaiseVolume",
-        #      'lower': 'XF86AudioLowerVolume',
-        #       'mute': 'XF86AudioMute'}
-        #h = hotkeys.HotKeyListener(kb)
-        #h.connect('key-press', self.on_hotkey_press)
-        #h.start()
         try:
             gui.gtk.main()
         except KeyboardInterrupt:
