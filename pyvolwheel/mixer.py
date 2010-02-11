@@ -43,11 +43,15 @@ def get_devices(driver):
     if driver not in available_drivers:
         raise MixerError("Invalid driver: '{0}'".format(str(driver)))
     if driver == 'ALSA':
-        return alsaaudio.cards()
+        devs = alsaaudio.cards()
     elif driver == 'OSS':
         # If AUDIODEV is not set, we filter it from the list
-        return [x for x in [os.getenv('AUDIODEV'), "/dev/mixer"]
-                if x is not None]
+        devs= [x for x in [os.getenv('AUDIODEV'), "/dev/mixer"]
+               if x is not None]
+    if len(devs) < 1:
+        raise MixerError("Could not find any devices for {0}".format(driver))
+    else:
+        return devs
 
 def get_controls(driver, device):
     """Return a list of available controls on the device"""
@@ -66,7 +70,6 @@ def get_controls(driver, device):
                 m.close()
             except alsaaudio.ALSAAudioError:
                 pass
-        return valid
     elif driver == "OSS":
         try:
             om = ossaudiodev.openmixer(device)
@@ -75,9 +78,13 @@ def get_controls(driver, device):
         bitmask = om.controls()
         om.close()
         # Filter out unavailable controls
-        return [ossaudiodev.control_labels[c].rstrip() for
-                c in range(len(ossaudiodev.control_labels))
-                if bitmask & (1 << c)]
+        valid = [ossaudiodev.control_labels[c].rstrip() for
+                 c in range(len(ossaudiodev.control_labels))
+                 if bitmask & (1 << c)]
+    if len(valid) < 1:
+        raise MixerError("Could not find any controls for {0}".format(device))
+    else:
+        return valid
 
 def open_mixer(driver, device, control):
     if driver not in available_drivers:
@@ -244,6 +251,8 @@ if 'OSS' in available_drivers:
                 vol = self._mixer.get(self._control_idx)
             except ossaudiodev.OSSAudioError as e:
                 raise MixerError(str(e))
+            except IOError as e:
+                raise MixerError("Unsupported control: " + self._control)
             return vol
 
         def set_volume(self, volume):
