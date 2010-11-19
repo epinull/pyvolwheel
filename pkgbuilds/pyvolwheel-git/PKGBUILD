@@ -1,12 +1,12 @@
 # Contributor: epinull <epinull at gmail dot com>
 
 pkgname=pyvolwheel-git
-pkgver=20101024
+pkgver=20101118
 pkgrel=1
 pkgdesc="Volume control tray icon"
 arch=('any')
 url="http://github.com/epinull/pyvolwheel"
-license=('GPL3')
+license=('ZLIB')
 depends=('python2>=2.6' 'pygtk>=2.16')
 optdepends=('python-pyalsaaudio: ALSA support'
             'python-xlib: global hotkeys')
@@ -35,6 +35,7 @@ build() {
 
   cd "$srcdir/$_gitname"
   sed -i 's/env python$/env python2/' bin/pyvolwheel || return 1
+  install -D -m444 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   python2 setup.py install --root="$pkgdir/" --optimize=1 || return 1
 }
 
