@@ -120,8 +120,11 @@ class ConfigDialog(gtk.Window):
         driver = self.driver_combo.get_active_text()
         device = self.device_combo.get_active_text()
         if driver is None or device is None: return
-        for control in mixer.get_controls(driver, device):
-            self.control_combo.append_text(control)
+        try:
+            for control in mixer.get_controls(driver, device):
+                self.control_combo.append_text(control)
+        except mixer.MixerError as ex:
+            pass
         self.control_combo.set_active(0)
         # Prevent saving if the device has no controls
         self._set_saveable(self.control_combo)

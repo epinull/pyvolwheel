@@ -144,7 +144,7 @@ class Mixer(object):
 
 if 'ALSA' in available_drivers:
     def _alsa_device_to_idx(device):
-        if isinstance(device, str):
+        if isinstance(device, str) or isinstance(device, unicode):
             # If device (card) is a string, try to match it to it's index
             try:
                 idx = get_devices('ALSA').index(device)
