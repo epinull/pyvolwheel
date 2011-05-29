@@ -25,7 +25,7 @@
 __all__ = ['config', 'mixer', 'gui']
 
 __author__ = 'epinull <epinull@gmail.com>'
-__version__ = '0.1.0'
+__version__ = '0.1'
 __copyright__ = 'Copyright (C) 2010 epinull'
 __license__ = 'GNU General Public License, version 3 or later'
 __url__ = 'http://github.com/epinull/pyvolwheel'
